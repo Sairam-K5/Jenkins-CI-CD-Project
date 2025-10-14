@@ -1,0 +1,4 @@
+Django>=4.2
+# Add any other dependencies here, e.g.
+djangorestframework>=3.14
+psycopg2-binary>=2.9
