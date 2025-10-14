@@ -28,7 +28,7 @@ spec:
     }
 
     environment {
-        REGISTRY = "docker.io/sairamk5
+        REGISTRY = "docker.io/sairamk5"
         IMAGE_NAME = "todo-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
