@@ -51,7 +51,7 @@ spec:
                         /kaniko/executor \
                           --context \$WORKSPACE \
                           --dockerfile \$WORKSPACE/Dockerfile \
-                          --destination=docker.io/sairamk5/todo-app:1
+                          --destination=\$REGISTRY/\$IMAGE_NAME:\$IMAGE_TAG \
                           --skip-tls-verify
                         """
                     }
