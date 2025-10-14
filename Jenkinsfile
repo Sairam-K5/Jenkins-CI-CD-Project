@@ -28,7 +28,7 @@ spec:
     }
 
     environment {
-        REGISTRY = "docker.io/sairamk5  // Replace with your Docker Hub username
+        REGISTRY = "docker.io/sairamk5
         IMAGE_NAME = "todo-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
@@ -51,7 +51,7 @@ spec:
                         /kaniko/executor \
                           --context \$WORKSPACE \
                           --dockerfile \$WORKSPACE/Dockerfile \
-                          --destination=\$REGISTRY/\$IMAGE_NAME:\$IMAGE_TAG \
+                          --destination=docker.io/sairamk5/todo-app:1
                           --skip-tls-verify
                         """
                     }
