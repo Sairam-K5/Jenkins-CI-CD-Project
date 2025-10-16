@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/Sairam-K5/Jenkins-CI-CD-Project.git'
-    targetRevision: HEAD
+    targetRevision: main          # ✅ safer and explicit (instead of HEAD)
     path: k8s
   destination:
     server: 'https://kubernetes.default.svc'
@@ -16,4 +16,7 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true       # ✅ ArgoCD auto-creates todo-app namespace if missing
+      - ApplyOutOfSyncOnly=true    # ✅ Speeds up syncs (optional)
 

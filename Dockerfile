@@ -1,35 +1,32 @@
-# Use a Python base image
+# Use a minimal Python base image
 FROM python:3.12-slim
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies for Python and PostgreSQL (if needed)
+# Install system dependencies (only what’s needed)
 RUN apt-get update && apt-get install -y \
-    python3-pip \
-    python3-setuptools \
-    python3-venv \
     build-essential \
     libpq-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy dependency list first for caching efficie
+# Copy dependency list first for caching efficiency
 COPY requirements.txt .
 
-# Install Python dependencies
+# Install dependencies
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project files
 COPY . .
 
-# Run migrations after copying source
-RUN python manage.py migrate
+# Create a non-root user
+RUN useradd -m appuser
+USER appuser
 
 # Expose Django port
 EXPOSE 8000
 
-# Start the Django development server
+# Command to start the app (development)
+# For production, use: gunicorn your_project_name.wsgi:application --bind 0.0.0.0:8000
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-

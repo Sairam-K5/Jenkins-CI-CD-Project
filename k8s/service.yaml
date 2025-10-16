@@ -1,13 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: todo-service
+  name: todo-app-service
+  namespace: todo-app
+  labels:
+    app: todo-app
 spec:
   selector:
     app: todo-app
   ports:
-    - port: 80
+    - name: http
+      port: 8000
       targetPort: 8000
-      protocol: TCP
   type: ClusterIP
-

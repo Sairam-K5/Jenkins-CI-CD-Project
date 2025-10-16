@@ -18,6 +18,11 @@ spec:
     volumeMounts:
     - name: kaniko-secret
       mountPath: /kaniko/.docker
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    command:
+    - cat
+    tty: true
   restartPolicy: Never
   volumes:
   - name: kaniko-secret
@@ -28,9 +33,14 @@ spec:
     }
 
     environment {
+<<<<<<< HEAD
         REGISTRY = "docker.io/sairamk5"
+=======
+        REGISTRY = "docker.io/sairamk5"         // ✅ Replace with your Docker Hub username
+>>>>>>> 64a379c (updated)
         IMAGE_NAME = "todo-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
+        NAMESPACE = "todo-app"
     }
 
     stages {
@@ -46,7 +56,7 @@ spec:
             steps {
                 container('kaniko') {
                     script {
-                        echo 'Building Docker image with Kaniko and pushing...'
+                        echo '🚀 Building and pushing Docker image using Kaniko...'
                         sh """
                         /kaniko/executor \
                           --context \$WORKSPACE \
@@ -62,9 +72,9 @@ spec:
         stage('Update Kubernetes Deployment') {
             steps {
                 script {
+                    echo '📝 Updating deployment.yaml with the new image...'
                     sh """
-                    echo "Updating deployment.yaml with new image..."
-                    sed -i "s|image: .*|image: \$REGISTRY/\$IMAGE_NAME:\$IMAGE_TAG|g" k8s/deployment.yaml
+                    sed -i 's|image: .*|image: \$REGISTRY/\$IMAGE_NAME:\$IMAGE_TAG|' k8s/deployment.yaml
                     cat k8s/deployment.yaml
                     """
                 }
@@ -73,19 +83,30 @@ spec:
 
         stage('Deploy to Kubernetes') {
             steps {
-                script {
-                    sh """
-                    echo "Applying Kubernetes manifests..."
-                    kubectl apply -f k8s/deployment.yaml
-                    kubectl apply -f k8s/service.yaml
-                    kubectl rollout status deployment/todo-app -n todo-app
-                    kubectl get pods -n todo-app
-                    kubectl get svc -n todo-app
-                    """
+                container('kubectl') {
+                    script {
+                        echo '🚢 Applying updated Kubernetes manifests...'
+                        sh """
+                        kubectl create ns \$NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+                        kubectl apply -f k8s/deployment.yaml -n \$NAMESPACE
+                        kubectl apply -f k8s/service.yaml -n \$NAMESPACE
+                        kubectl rollout status deployment/todo-app -n \$NAMESPACE
+                        kubectl get pods -n \$NAMESPACE
+                        kubectl get svc -n \$NAMESPACE
+                        """
+                    }
                 }
             }
         }
     }
-}
 
+    post {
+        success {
+            echo '✅ Pipeline executed successfully! Deployment completed.'
+        }
+        failure {
+            echo '❌ Pipeline failed! Check logs for details.'
+        }
+    }
+}
 
