@@ -1,22 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: todo-app
+  name: django-cicd
   namespace: argocd
 spec:
   project: default
+
   source:
     repoURL: 'https://github.com/Sairam-K5/Jenkins-CI-CD-Project.git'
-    targetRevision: main          # ✅ safer and explicit (instead of HEAD)
-    path: k8s
+    targetRevision: HEAD
+    path: k8s   # folder where django-deployment.yaml is kept
+
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: todo-app
+    namespace: default
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true       # ✅ ArgoCD auto-creates todo-app namespace if missing
-      - ApplyOutOfSyncOnly=true    # ✅ Speeds up syncs (optional)
-
+      - CreateNamespace=true

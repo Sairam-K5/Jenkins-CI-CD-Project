@@ -1,32 +1,25 @@
-# Use a minimal Python base image
-FROM python:3.12-slim
+# STEP 1: Use an official Python image
+FROM python:3.10-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies (only what’s needed)
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy dependency list first for caching efficiency
-COPY requirements.txt .
-
-# Install dependencies
-RUN pip install --upgrade pip
+# STEP 2: Install dependencies
+COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
-COPY . .
+# STEP 3: Copy source code
+COPY . /app/
 
-# Create a non-root user
-RUN useradd -m appuser
-USER appuser
+# STEP 4: Collect static files (optional)
+RUN python manage.py collectstatic --noinput || true
 
-# Expose Django port
+# STEP 5: Expose port & start app
 EXPOSE 8000
 
-# Command to start the app (development)
-# For production, use: gunicorn your_project_name.wsgi:application --bind 0.0.0.0:8000
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Use gunicorn as production server
+CMD ["gunicorn", "myproject.wsgi:application", "--bind", "0.0.0.0:8000"]
